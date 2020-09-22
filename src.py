@@ -15,6 +15,9 @@ class RBM(object):
         self.weights = np.insert(self.weights, 0, 0, axis = 0)
         self.weights = np.insert(self.weights, 0, 0, axis = 1)
 
+    def _logistic(self, x):
+        return 1.0 / (1 + np.exp(-x))
+
     def train(self, data, max_epochs = 1000, learning_rate = 0.1):
         num_examples = data.shape[0]
         data = np.insert(data, 0, 1, axis = 1)
@@ -48,35 +51,32 @@ class RBM(object):
         hidden_states = hidden_states[:,1:]
         return hidden_states
 
-    def run_hidden(self, data):
-        num_examples = data.shape[0]
-        visible_states = np.ones((num_examples, self.num_visible + 1))
-        data = np.insert(data, 0, 1, axis = 1)
-        visible_activations = np.dot(data, self.weights.T)
-        visible_probs = self._logistic(visible_activations)
-        visible_states[:,:] = visible_probs > np.random.rand(num_examples, 
-            self.num_visible + 1)
-        visible_states = visible_states[:,1:]
-        return visible_states
+    # def run_hidden(self, data):
+    #     num_examples = data.shape[0]
+    #     visible_states = np.ones((num_examples, self.num_visible + 1))
+    #     data = np.insert(data, 0, 1, axis = 1)
+    #     visible_activations = np.dot(data, self.weights.T)
+    #     visible_probs = self._logistic(visible_activations)
+    #     visible_states[:,:] = visible_probs > np.random.rand(num_examples, 
+    #         self.num_visible + 1)
+    #     visible_states = visible_states[:,1:]
+    #     return visible_states
     
-    def daydream(self, num_samples):
-        samples = np.ones((num_samples, self.num_visible + 1))
-        samples[0,1:] = np.random.rand(self.num_visible)
-        for i in range(1, num_samples):
-            visible = samples[i-1,:]
-        hidden_activations = np.dot(visible, self.weights)      
-        hidden_probs = self._logistic(hidden_activations)
-        hidden_states = hidden_probs > np.random.rand(self.num_hidden + 1)
-        hidden_states[0] = 1
-        visible_activations = np.dot(hidden_states, self.weights.T)
-        visible_probs = self._logistic(visible_activations)
-        visible_states = visible_probs > np.random.rand(self.num_visible + 1)
-        samples[i,:] = visible_states
-        return samples[:,1:]        
+    # def daydream(self, num_samples):
+    #     samples = np.ones((num_samples, self.num_visible + 1))
+    #     samples[0,1:] = np.random.rand(self.num_visible)
+    #     for i in range(1, num_samples):
+    #         visible = samples[i-1,:]
+    #     hidden_activations = np.dot(visible, self.weights)      
+    #     hidden_probs = self._logistic(hidden_activations)
+    #     hidden_states = hidden_probs > np.random.rand(self.num_hidden + 1)
+    #     hidden_states[0] = 1
+    #     visible_activations = np.dot(hidden_states, self.weights.T)
+    #     visible_probs = self._logistic(visible_activations)
+    #     visible_states = visible_probs > np.random.rand(self.num_visible + 1)
+    #     samples[i,:] = visible_states
+    #     return samples[:,1:]        
       
-    def _logistic(self, x):
-        return 1.0 / (1 + np.exp(-x))
-
 if __name__ == '__main__':
     r = RBM(num_visible = 6, num_hidden = 2)
     training_data = np.array([
