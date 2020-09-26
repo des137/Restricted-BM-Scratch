@@ -1,6 +1,7 @@
 # Source: https://github.com/echen/restricted-boltzmann-machines/blob/master/rbm.py
 
 import numpy as np
+from scipy.special import expit
 
 class RBM(object):
     def __init__(self, num_visible, num_hidden):
