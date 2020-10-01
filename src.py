@@ -1,18 +1,18 @@
 # Source: https://github.com/echen/restricted-boltzmann-machines/blob/master/rbm.py
 
 import numpy as np
-from scipy.special import expit
+# from scipy.special import expit
 
 class RBM(object):
     def __init__(self, num_visible, num_hidden):
         self.num_hidden = num_hidden
         self.num_visible = num_visible
-        self.debug_print = True
+        # self.debug_print = True
         np_rng = np.random.RandomState(1234)
         self.weights = np.asarray(np_rng.uniform(
-        low=-0.1 * np.sqrt(6. / (num_hidden + num_visible)),
-        high=0.1 * np.sqrt(6. / (num_hidden + num_visible)),
-        size=(num_visible, num_hidden)))
+            low=-0.1 * np.sqrt(6. / (num_hidden + num_visible)),
+            high=0.1 * np.sqrt(6. / (num_hidden + num_visible)),
+            size=(num_visible, num_hidden)))
         self.weights = np.insert(self.weights, 0, 0, axis = 0)
         self.weights = np.insert(self.weights, 0, 0, axis = 1)
 
@@ -20,20 +20,18 @@ class RBM(object):
         return 1.0 / (1 + np.exp(-x))
 
     def train(self, data, max_epochs = 1000, learning_rate = 0.1):
-        num_examples = data.shape[0]
+        # num_examples = data.shape[0]
         data = np.insert(data, 0, 1, axis = 1)
-        for epoch in range(max_epochs):      
-            pos_hidden_activations = np.dot(data, self.weights)      
-            pos_hidden_probs = self._logistic(pos_hidden_activations)
-            pos_hidden_probs[:,0] = 1
-            pos_hidden_states = pos_hidden_probs > np.random.rand(num_examples, 
+        for epoch in range(max_epochs):
+            pos_hidden_probs = self._logistic(np.dot(data, self.weights))
+            pos_hidden_probs[:, 0] = 1
+            pos_hidden_states = pos_hidden_probs > np.random.rand(data.shape[0], 
                 self.num_hidden + 1)
             pos_associations = np.dot(data.T, pos_hidden_probs)
             neg_visible_activations = np.dot(pos_hidden_states, self.weights.T)
-            neg_visible_probs = self._logistic(neg_visible_activations)
-            neg_visible_probs[:,0] = 1
-            neg_hidden_activations = np.dot(neg_visible_probs, self.weights)
-            neg_hidden_probs = self._logistic(neg_hidden_activations)
+            neg_visible_probs = self._logistic(np.dot(data, self.weights))
+            neg_visible_probs[:, 0] = 1
+            neg_hidden_probs = self._logistic(np.dot(neg_visible_probs, self.weights))
             neg_associations = np.dot(neg_visible_probs.T, neg_hidden_probs)
             self.weights += learning_rate * ((pos_associations - 
                 neg_associations) / num_examples)
